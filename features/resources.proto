@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+//
+// This file contains an example resource that can be used during feature testing. Any of the
+// messages defined within this file will be registered at the time of test execution. Resources
+// should be created to help verify that the system is functioning as expected.
+//
+
+package features;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "StackPath.V1";
+option go_package = "github.com/stackpath/control-plane/features";
+option java_multiple_files = true;
+option java_outer_classname = "AccountsProto";
+option java_package = "com.stackpath.v1";
+option php_namespace = "StackPath\\V1";
+
+// Represents an account in the platform
+//
+// A account can be used to represent a recipient for a message.
+message Account {
+  option (google.api.resource) = {
+    type: "features.com/Account",
+    plural: "accounts",
+    singular: "account",
+    pattern: "accounts/{account}",
+  };
+
+  // The name of the resource.
+  //
+  // Example: resources/joes-account-e4knw/accounts/joe-smith-3j3nm
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The name that should be used when displaying the account.
+  //
+  // Example: Joe Smith
+  //
+  // This value should be at most 64 characters and must be unique within
+  // the parent of the account.
+  string display_name = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Arbitrary key/value pairs that can be used to classify or
+  // tag a resource.
+  //
+  // Example: "city" = "dallas"
+  //
+  // Each label value is restricted to be at most 64 characters in
+  // length and must only contain the characters a-z, A-Z, 0-9, -,
+  // _, or space. The value must be a non-empty value and must not
+  // start or end in spaces.
+  map<string, string> labels = 5;
+
+  // Annotations are key/value pairs that can be used to hold configuration
+  // data related to third party integrations and may also contain configuration
+  // when working with different version of the same data model.
+  //
+  // Example: "example-integration.com/..." = ""
+  //
+  // Annotations are not well documented resources and will have a shorter
+  // deprecation cycle than fields defined on a resource.
+  map<string, string> annotations = 6;
+
+  // Server-defined URL for the resource.
+  string self_link = 100 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A unique identifer for the resource.
+  string uid = 101 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time the account was created.
+  google.protobuf.Timestamp create_time = 102 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time the account was updated.
+  google.protobuf.Timestamp update_time = 103 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time of when the account was requested to be deleted.
+  google.protobuf.Timestamp delete_time = 104 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
