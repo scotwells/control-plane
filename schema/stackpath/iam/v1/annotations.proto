@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+// (-- api-linter: core::0215::versioned-packages=disabled
+//     aip.dev/not-precedent: Common --)
+package stackpath.iam.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option csharp_namespace = "StackPath.Iam.V1";
+option go_package = "github.com/stackpath/control-plane/server/serverpb";
+option java_multiple_files = true;
+option java_outer_classname = "ServiceProto";
+option java_package = "com.stackpath.iam.v1";
+option php_namespace = "StackPath\\Iam\\V1";
+
+extend google.protobuf.MethodOptions {
+  // Required permissions should contain the necessary permissions for an RPC method
+  //
+  // Any permissions in this list should be necessary for calling the endpoint. If the
+  // calling user does not have all of the permissions for the requested resource then
+  // a PermissionDenied error will be returned to the client.
+  repeated string required_permissions = 80001;
+
+  // Additional permissions are other permissions that should be checked for the endpoint
+  //
+  // This option should contain any additional permissions that should be checked when the
+  // endpoint is invoked. Any permisisons included in this list will not result in a
+  // PermissionDenied error if the caller does not have the permission.
+  repeated string additional_permissions = 80002;
+}

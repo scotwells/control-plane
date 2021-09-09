@@ -1,0 +1,210 @@
+syntax = "proto3";
+
+package stackpath.resourcemanager.v1;
+
+import "stackpath/iam/v1/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/any.proto";
+import "google/api/client.proto";
+import "google/protobuf/field_mask.proto";
+
+option csharp_namespace = "StackPath.ResourceManager.V1";
+option go_package = "github.com/stackpath/control-plane/server/serverpb";
+option java_multiple_files = true;
+option java_outer_classname = "ResourcesProto";
+option java_package = "com.stackpath.resourcemanager.v1";
+option php_namespace = "StackPath\\ResourceManager\\V1";
+
+// Resources provides a service interface for managing declarative resources.
+service Resources {
+  // ListResources will retrieve a list of resources
+  //
+  // An empty result will be returned when no resources exist.
+  rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
+    option (google.api.method_signature) = "parent";
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.list";
+  }
+
+  // CreateResource will create a new resource
+  //
+  // An AlreadyExists error will be returned when the resulting resource's
+  // resource name conflicts with an existing resource.
+  rpc CreateResource(CreateResourceRequest) returns (google.protobuf.Any) {
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.create";
+    option (google.api.method_signature) = "parent,resource,account_id";
+  }
+
+  // GetResource will retrieve an resource
+  //
+  // A NotFound error will be returned when an resource does not exist.
+  rpc GetResource(GetResourceRequest) returns (google.protobuf.Any) {
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.get";
+    option (google.api.method_signature) = "name";
+  }
+
+  // UpdateResource will update an resource
+  //
+  // This endpoint will return a NotFound error when the provided
+  // resource does not exist.
+  rpc UpdateResource(UpdateResourceRequest) returns (google.protobuf.Any) {
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.update";
+    option (google.api.method_signature) = "resource,update_mask";
+  }
+
+  // DeleteResource will soft-delete a resource from the system.
+  //
+  // A soft-deleted resource will remain in the system for 32 days before it is
+  // permanently removed. UndeleteResource can be used to undelete a resource that
+  // has not been permanently removed. A not found error will be returned when
+  rpc DeleteResource(DeleteResourceRequest) returns (google.protobuf.Any) {
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.delete";
+    option (google.api.method_signature) = "name";
+  }
+
+  // Undeletes a soft-deleted resource in the system.
+  rpc UndeleteResource(UndeleteResourceRequest) returns (google.protobuf.Any) {
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.undelete";
+    option (google.api.method_signature) = "name";
+  }
+
+  // Removes a soft-deleted resource from the system
+  //
+  // Soft-deleted resources are purged from the system automatically after 32 days. This endpoint
+  // can be used to forcefully purge a resource from the system before it is automatically removed.
+  rpc PurgeResource(PurgeResourceRequest) returns (PurgeResourceResponse) {
+    option (stackpath.iam.v1.required_permissions) = "resourcemanager.resources.purge";
+    option (google.api.method_signature) = "name";
+  }
+}
+
+// ListResourcesRequest will return a paginated list of resources.
+message ListResourcesRequest {
+  // The parent that should be searched by.
+  string parent = 1;
+
+  // The resource type that should be searched.
+  // Should be in the format `stackpathapis.com/Account`.
+  string resource_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The max number of results per page that should be returned. If the number
+  // of available results is larger than `page_size`, a `next_page_token` is
+  // returned which can be used to get the next page of results in subsequent
+  // requests. Acceptable values are 0 to 500, inclusive. (Default: 10)
+  // The default value is used when a page_size of 0 is provided.
+  int32 page_size = 3;
+
+  // Specifies a page token to use. Set this to the nextPageToken returned by
+  // previous list requests to get the next page of results.
+  string page_token = 4;
+
+  // A filter that should be used to retrieve a subset of the resources.
+  string filter = 5;
+}
+
+// ListResourcesResponse will list the resources.
+message ListResourcesResponse {
+  // A list of resources.
+  repeated google.protobuf.Any resources = 1;
+
+  // This token allows you to get the next page of results for list requests.
+  // If the number of results is larger than `page_size`, use the
+  // `next_page_token` as a value for the query parameter `page_token` in the
+  // next request. The value will become empty when there are no more pages.
+  string next_page_token = 2;
+}
+
+// CreateResourceRequest will create a resource
+message CreateResourceRequest {
+  // The parent ID that should be used when creating the resource in the storage
+  // system. This parent must match one of the patterns that's specified on the
+  // provided protobuf message.
+  string parent = 1;
+
+  // The resource that should be created.
+  google.protobuf.Any resource = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID to use for the resource, which will become the final component of
+  // the resources's resource name.
+  //
+  // This value should be between 4 and 63 characters. Valid characters
+  // are /[a-z][0-9]-/.
+  string resource_id = 3;
+}
+
+// UpdateResourceRequest will update the resource.
+message UpdateResourceRequest {
+  // The resource that should be updated.
+  google.protobuf.Any resource = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The update mask that applies to the resource.
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+// GetResourceRequest will get an resource.
+message GetResourceRequest {
+  // The name of the resource to get
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The resource type that should be searched.
+  // Should be in the format `stackpathapis.com/Account`.
+  string resource_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// DeleteResourceRequest will delete an resource.
+message DeleteResourceRequest {
+  // The name of the resource to delete.
+  // Specified in the format 'resources/*`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The resource type that should be searched.
+  // Should be in the format `stackpathapis.com/Account`.
+  string resource_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+
+// Undeletes a soft-deleted resource from the system.
+message UndeleteResourceRequest {
+  // The name of the resource to delete.
+  // Specified in the format 'resources/*`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The resource type that should be searched.
+  // Should be in the format `stackpathapis.com/Account`.
+  string resource_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+
+// Removes a soft-deleted resource from the system.
+message PurgeResourceRequest {
+  // The name of the resource to delete.
+  // Specified in the format 'resources/*`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The resource type that should be searched.
+  // Should be in the format `stackpathapis.com/Account`.
+  string resource_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message PurgeResourceResponse {
+
+}
