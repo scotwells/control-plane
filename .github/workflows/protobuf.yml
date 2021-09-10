@@ -27,6 +27,9 @@ jobs:
           go-version: '^1.15.0'
       - name: Install API Linter
         run: go get -u github.com/googleapis/api-linter/cmd/api-linter@v1.10.0
-      - name: Lint Protobuf Files
-        # Run the linter against the StackPath protos.
-        run: cd schema && api-linter --set-exit-status -I . -I api-common-protos stackpath/*/*.proto
+      - name: Lint Protobuf Files Summary
+        # Run the linter against the StackPath protobuf files and get a summary output
+        run: cd schema && api-linter --proto-path=. --proto-path=api-common-protos --output-format=summary $(find stackpath -iname '*.proto')
+      - name: Lint Protobuf Files Detail
+        # Run the linter against the StackPath protobuf files and get a fully detailed putput in YAML format
+        run: cd schema && api-linter --proto-path=. --proto-path=api-common-protos --output-format=yaml $(find stackpath -iname '*.proto')
